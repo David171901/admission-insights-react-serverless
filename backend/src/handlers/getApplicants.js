@@ -1,6 +1,8 @@
+const middy = require('@middy/core');
 const { connectDatabase } = require('../database/config');
 const { applicantService } = require('../services');
-const { handleResponse } = require('../utils')
+const { handleResponse } = require('../utils');
+const { queryParams } = require('../middlewares');
 
 const mongooseInit = async () => {
   await connectDatabase();
@@ -8,7 +10,7 @@ const mongooseInit = async () => {
 
 const mongooseStarted = mongooseInit();
 
-module.exports.handler = async (event) => {
+const handler = async (event) => {
   try {
     // Initialize database
     await mongooseStarted;
@@ -26,9 +28,9 @@ module.exports.handler = async (event) => {
       sortorder,
       // Pagination
       limit,
-      page
-    } = event.queryStringParameters;
-    const applicants = await applicantService.searchApplicant(
+      page = 1,
+    } = event.queryStringParameters || {};
+    const data = await applicantService.searchApplicant(
       {
         code,
         firstname,
@@ -41,17 +43,19 @@ module.exports.handler = async (event) => {
         limit,
         page
       });
-    if (applicants.length === 0) {
+    if (data.applicants.length === 0) {
       return handleResponse.generateResponse(404, {
         success: true,
-        data: applicants,
+        message: 'Applicants not found',
+        data: [],
       });
     }
     return handleResponse.generateResponse(200, {
       success: true,
-      count: applicants.length,
-      page: page,
-      data: applicants,
+      count: data.applicants.length,
+      page: parseInt(page),
+      totalpages: data.totalPages,
+      data: data.applicants,
     });
   } catch (error) {
     console.log('[getApplicants] Error(UNEXPECTED)', error.message);
@@ -61,4 +65,8 @@ module.exports.handler = async (event) => {
       error: error.message
     });
   }
+};
+
+module.exports = {
+  handler: middy(handler).use(queryParams.validate())
 };

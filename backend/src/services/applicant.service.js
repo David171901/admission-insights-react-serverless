@@ -51,12 +51,14 @@ async function searchApplicant({
     // Pagination
     const skip = (page - 1) * limit;
     const applicants = await applicantModel.find(query).sort(sort).skip(skip).limit(limit).lean();
-    return applicants
+    const totalApplicantsCount = await applicantModel.countDocuments(query);
+    const totalPages = Math.ceil(totalApplicantsCount / limit);
+    return { applicants, totalPages };
   } catch (error) {
     console.log("[searchApplicant] Error(MONGO):", error)
-    return []
+    return { applicants: [], totalPages: 0 };
   }
-}
+};
 
 module.exports = {
   searchApplicant,
