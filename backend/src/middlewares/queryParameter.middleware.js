@@ -5,8 +5,11 @@ const validate = () => {
   return {
     before: (handler) => {
       const queries = handler.event.queryStringParameters || {};
-      const result  = querySchema.safeParse(queries);
-      if(!result.success) {
+      if (!queries || Object.keys(queries).length === 0) {
+        return; 
+      }
+      const result = querySchema.safeParse(queries);
+      if (!result.success) {
         return handleResponse.generateResponse(500, {
           success: false,
           message: 'Error in the query parameters sent',
