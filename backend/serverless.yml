@@ -12,6 +12,18 @@ functions:
       - httpApi:
           path: /
           method: get
+  getApplicants:
+    handler: src/handlers/getApplicants.handler
+    events:
+      - httpApi:
+          path: /applicants
+          method: get
           
 plugins:
   - serverless-offline
+  - serverless-dotenv-plugin
+
+custom:
+  esbuild:
+    bundle: true
+    minify: false
