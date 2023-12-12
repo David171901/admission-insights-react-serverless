@@ -22,7 +22,7 @@ const handler = async (event) => {
       lastname,
       professionalschool,
       minimumscore,
-      maximumscrore,
+      maximumscore,
       // sort
       sortby,
       sortorder,
@@ -37,7 +37,7 @@ const handler = async (event) => {
         lastname,
         professionalschool,
         minimumscore,
-        maximumscrore,
+        maximumscore,
         sortby,
         sortorder,
         limit,
