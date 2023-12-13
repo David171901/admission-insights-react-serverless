@@ -1,4 +1,4 @@
-import * as React from 'react';
+
 import Paper from '@mui/material/Paper';
 import TableMUI from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -9,6 +9,7 @@ import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import { getApplicants } from '../../services/applicants';
 import { Applicant } from '../../interfaces/applicant';
+import { useEffect, useState } from 'react';
 
 interface Column {
   id: string;
@@ -51,15 +52,15 @@ const columns: readonly Column[] = [
 ];
 
 export function Table() {
-  const [page, setPage] = React.useState(1);
-  const [totalpages, setTotalPages] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(10);
-  const [allApplicants, setAllApplicants] = React.useState<Applicant[]>([]);
-  const [isLoading, setIsLoading] = React.useState(true)
+  const [page, setPage] = useState(1);
+  const [totalpages, setTotalPages] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [allApplicants, setAllApplicants] = useState<Applicant[]>([]);
+  const [isLoading, setIsLoading] = useState(true)
 
   const fetchApplicants = async (page: number) => {
     setIsLoading(true);
-    const data = await getApplicants(import.meta.env.API_URL, { page: page.toString() });
+    const data = await getApplicants(`${import.meta.env.VITE_API_URL}`, { page: page.toString() });
     setIsLoading(false);
     if (data.success) {
       setAllApplicants(data.ok.data);
@@ -67,7 +68,7 @@ export function Table() {
     }
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     fetchApplicants(page);
   }, [page])
 
@@ -89,7 +90,7 @@ export function Table() {
         <>
           <TableContainer>
             <TableMUI stickyHeader aria-label="sticky table">
-              <TableHead>
+              <TableHead className="bg-green-400"> 
                 <TableRow>
                   {columns.map((column) => (
                     <TableCell

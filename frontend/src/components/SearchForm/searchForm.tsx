@@ -1,7 +1,10 @@
 import { Button, MenuItem, Typography } from '@mui/material';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
-import React from 'react';
+import { useForm, SubmitHandler } from 'react-hook-form';
+import z, { TypeOf } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { emptyLiteralString } from '../../common/zodTypes';
 
 const professionalschool = [
   'ADMINISTRACIÓN',
@@ -62,37 +65,30 @@ const sortBy = [
   },
 ];
 
+const formSchema = z.object({
+  code: z.string().length(6).or(emptyLiteralString()),
+  firstname: z.string().min(3).or(emptyLiteralString()),
+  lastname: z.string().min(3).or(emptyLiteralString()),
+  professionalschool: z.string().optional(),
+  minimumscore: z.string().optional(),
+  maximumscore: z.string().optional(),
+  sortby: z.string().optional(),
+  sortorder: z.string().optional(),
+});
+
+type FormInput = TypeOf<typeof formSchema>;
+
 export const SearchForm = () => {
-  const [formData, setFormData] = React.useState({
-    code: '',
-    firstname: '',
-    lastname: '',
-    professionalschool: '',
-    maximumscore: '',
-    minimumscore: '',
-    sortBy: 'lastname',
-    sortOrder: 'asc',
+  const {
+    register,
+    formState: { errors },
+    handleSubmit,
+  } = useForm<FormInput>({
+    resolver: zodResolver(formSchema),
   });
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    console.log('Form data:', formData);
-  }
-
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = event.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-  };
-
-  const handleSelectChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = event.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
+  const onSubmitHandler: SubmitHandler<FormInput> = (values) => {
+    console.log("🚀 ~ file: searchForm.tsx:203 ~ SearchForm ~ values:", values)
   };
 
   return (
@@ -100,8 +96,8 @@ export const SearchForm = () => {
       component='form'
       noValidate
       autoComplete='off'
-      onSubmit={handleSubmit}
       className='mb-16'
+      onSubmit={handleSubmit(onSubmitHandler)}
     >
       <section>
         <Typography variant='h6' gutterBottom>
@@ -110,31 +106,34 @@ export const SearchForm = () => {
         <div className='grid grid-cols-2  md:grid-cols-4 gap-4 my-4'>
           <TextField
             label='CODIGO'
-            name='code'
-            value={formData.code}
-            onChange={handleInputChange}
+            error={!!errors['code']}
+            helperText={errors['code'] ? errors['code'].message : ''}
+            {...register('code')}
+            inputProps={{ maxLength: 6 }}
           />
           <TextField
             label='NOMBRES'
-            name='firstname'
-            value={formData.firstname}
-            onChange={handleInputChange}
+            error={!!errors['firstname']}
+            helperText={errors['firstname'] ? errors['firstname'].message : ''}
+            {...register('firstname')}
+            inputProps={{ maxLength: 50 }}
           />
           <TextField
             label='APELLIDOS'
-            name='lastname'
-            value={formData.lastname}
-            onChange={handleInputChange}
+            error={!!errors['lastname']}
+            helperText={errors['lastname'] ? errors['lastname'].message : ''}
+            {...register('lastname')}
+            inputProps={{ maxLength: 50 }}
           />
           <TextField
             select
             label='ESCUELA PROFESIONAL'
-            name='professionalschool'
             defaultValue=''
-            value={formData.professionalschool}
-            onChange={handleSelectChange}
+            error={!!errors['professionalschool']}
+            helperText={errors['professionalschool'] ? errors['professionalschool'].message : ''}
+            {...register('professionalschool')}
           >
-            <MenuItem key={''} value={''} selected disabled>
+            <MenuItem key={''} value={''}>
               {'SELECCIONA UNA ESCUELA PROFESIONAL'}
             </MenuItem>
             {professionalschool.map((school) => (
@@ -146,16 +145,16 @@ export const SearchForm = () => {
           <TextField
             label='PUNTAJE MÍNIMO'
             type='number'
-            name='minimumscore'
-            value={formData.minimumscore}
-            onChange={handleInputChange}
+            error={!!errors['minimumscore']}
+            helperText={errors['minimumscore'] ? errors['minimumscore'].message : ''}
+            {...register('minimumscore')}
           />
           <TextField
             label='PUNTAJE MÁXIMO'
             type='number'
-            name='maximumscore'
-            value={formData.maximumscore}
-            onChange={handleInputChange}
+            error={!!errors['maximumscore']}
+            helperText={errors['maximumscore'] ? errors['maximumscore'].message : ''}
+            {...register('maximumscore')}
           />
         </div>
       </section>
@@ -168,6 +167,9 @@ export const SearchForm = () => {
             select
             label='ORDENAR POR'
             defaultValue='lastname'
+            error={!!errors['sortby']}
+            helperText={errors['sortby'] ? errors['sortby'].message : ''}
+            {...register('sortby')}
           >
             {sortBy.map((option) => (
               <MenuItem key={option.value} value={option.value}>
@@ -179,6 +181,9 @@ export const SearchForm = () => {
             select
             label='DIRECCIÓN DEL ORDEN'
             defaultValue='asc'
+            error={!!errors['sortorder']}
+            helperText={errors['sortorder'] ? errors['sortorder'].message : ''}
+            {...register('sortorder')}
           >
             <MenuItem key={'asc'} value={'asc'}>
               {'ASCENDENTE'}
