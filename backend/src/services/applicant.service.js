@@ -53,7 +53,7 @@ async function searchApplicant({
     const applicants = await applicantModel.find(query).sort(sort).skip(skip).limit(limit).lean();
     const totalApplicantsCount = await applicantModel.countDocuments(query);
     const totalPages = Math.ceil(totalApplicantsCount / limit);
-    return { applicants, totalPages };
+    return { applicants, totalPages, totalApplicantsCount };
   } catch (error) {
     console.log("[searchApplicant] Error(MONGO):", error)
     return { applicants: [], totalPages: 0 };
