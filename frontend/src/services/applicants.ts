@@ -44,8 +44,8 @@ type GetApplicantsOptions = {
   firstname?: string,
   lastname?: string,
   professionalschool?: string,
-  minimumscore?: number,
-  maximumscore?: number,
+  minimumscore?: string,
+  maximumscore?: string,
   sortby?: string,
   sortorder?: string,
   limit?: string,
@@ -67,7 +67,7 @@ export async function getApplicants(
     limit,
   }: GetApplicantsOptions
 ): Promise<ApplicantResult> {
-  let finalUrl = `${url}/applicants?limit=${limit ?? 25
+  let finalUrl = `${url}/applicants?limit=${limit ?? 10
     }&page=${page ?? 1}`;
   if (code) finalUrl += `&code=${code}`;
   if (firstname) finalUrl += `&firstname=${firstname}`;

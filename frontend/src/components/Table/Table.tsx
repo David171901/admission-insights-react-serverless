@@ -10,7 +10,7 @@ import TableRow from '@mui/material/TableRow';
 import { getApplicants } from '../../services/applicants';
 import { Applicant } from '../../interfaces/applicant';
 import { useEffect, useState } from 'react';
-
+import { useSearchParams } from 'react-router-dom';
 interface Column {
   id: string;
   label: string;
@@ -52,34 +52,55 @@ const columns: readonly Column[] = [
 ];
 
 export function Table() {
-  const [page, setPage] = useState(1);
-  const [totalpages, setTotalPages] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [page, setPage] = useState(parseInt(searchParams.get('page')!) || 0);
+  const [limit, setLimit] = useState(parseInt(searchParams.get('limit')!) || 10);
+  const [count, setCount] = useState(0);
   const [allApplicants, setAllApplicants] = useState<Applicant[]>([]);
   const [isLoading, setIsLoading] = useState(true)
 
-  const fetchApplicants = async (page: number) => {
+  const fetchApplicants = async (page: number, limit: number) => {
     setIsLoading(true);
-    const data = await getApplicants(`${import.meta.env.VITE_API_URL}`, { page: page.toString() });
+    const data = await getApplicants(`${import.meta.env.VITE_API_URL}`, { 
+      page: (page + 1).toString(), 
+      limit: limit.toString(),
+      firstname: searchParams.get('firstname') || '',
+      lastname: searchParams.get('lastname') || '',
+      professionalschool: searchParams.get('professionalschool') || '',
+      minimumscore: searchParams.get('minimumscore') || '0',
+      maximumscore: searchParams.get('maximumscore') || '2000',
+     });
     setIsLoading(false);
     if (data.success) {
       setAllApplicants(data.ok.data);
-      setTotalPages(data.ok.totalpages);
+      setCount(data.ok.count);
     }
   };
 
   useEffect(() => {
-    fetchApplicants(page);
-  }, [page])
+    fetchApplicants(page, limit);
+  }, [page, limit, searchParams])
 
 
   const handleChangePage = (_: React.MouseEvent<HTMLButtonElement, MouseEvent> | null, newPage: number) => {
     setPage(newPage);
+    const queryParamsObject = Object.fromEntries(searchParams);
+    setSearchParams({
+      ...queryParamsObject,
+      page: newPage.toString(),
+    });
   };
 
   const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRowsPerPage(+event.target.value);
+    const limit_ = parseInt(event.target.value);
+    setLimit(limit_);
     setPage(0);
+    const queryParamsObject = Object.fromEntries(searchParams);
+    setSearchParams({
+      ...queryParamsObject,
+      limit: limit_.toString(),
+      page: page.toString(),
+    });
   };
 
   return (
@@ -90,7 +111,7 @@ export function Table() {
         <>
           <TableContainer>
             <TableMUI stickyHeader aria-label="sticky table">
-              <TableHead className="bg-green-400"> 
+              <TableHead className="bg-green-400">
                 <TableRow>
                   {columns.map((column) => (
                     <TableCell
@@ -137,10 +158,10 @@ export function Table() {
             </TableMUI>
           </TableContainer>
           <TablePagination
-            rowsPerPageOptions={[10, 25, 50]}
+            rowsPerPageOptions={[10, 25, 50, 100]}
             component="div"
-            count={totalpages}
-            rowsPerPage={rowsPerPage}
+            count={count}
+            rowsPerPage={limit}
             page={page}
             onPageChange={handleChangePage}
             onRowsPerPageChange={handleChangeRowsPerPage}

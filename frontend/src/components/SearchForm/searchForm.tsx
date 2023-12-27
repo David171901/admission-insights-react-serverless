@@ -5,45 +5,93 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 import z, { TypeOf } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { emptyLiteralString } from '../../common/zodTypes';
+import { useSearchParams } from 'react-router-dom';
+import { useEffect } from 'react';
 
 const professionalschool = [
-  'ADMINISTRACIÓN',
-  'ADMINISTRACIÓN DE NEGOCIOS INTERNACIONALES',
-  'ADMINISTRACIÓN DE TURISMO',
-  'ANTROPOLOGÍA',
-  'ARTE',
-  'AUDITORÍA EMPRESARIAL Y DEL SECTOR PÚBLICO',
-  'BIBLIOTECOLOGÍA Y CIENCIAS DE LA INFORMACIÓN',
-  'CIENCIAS BIOLÓGICAS',
-  'CIENCIAS DE LA COMPUTACIÓN',
-  'CONSERVACIÓN Y RESTAURACIÓN',
-  'CONTABILIDAD',
-  'DANZA',
+  'MEDICINA HUMANA',
+  'OBSTETRICIA',
+  'ENFERMERÍA',
+  'TEC. MED. LAB. CLÍNICO Y ANATOMÍA PATOLÓGICA',
+  'TEC. MED. TERAPIA FÍSICA Y REHABILITACIÓN',
+  'TEC. MED. RADIOLOGÍA',
+  'TEC. MED. TERAPIA OCUPACIONAL',
+  'NUTRICION',
   'DERECHO',
-  'ECONOMÍA',
-  'ECONOMÍA INTERNACIONAL',
-  'ECONOMÍA PÚBLICA',
+  'CIENCIA POLÍTICA',
+  'LITERATURA',
+  'FILOSOFÍA',
+  'LINGUÍSTICA',
+  'COMUNICACIÓN SOCIAL',
+  'ARTE',
+  'BIBLIOTECOLOGÍA Y CIENCIAS DE LA INFORMACIÓN',
+  'DANZA',
+  'CONSERVACIÓN Y RESTAURACIÓN',
+  'FARMACIA Y BIOQUÍMICA',
+  'CIENCIAS DE LOS ALIMENTOS',
+  'TOXICOLOGÍA',
+  'ODONTOLOGÍA',
+  'EDUCACIÓN INICIAL',
   'EDUCACIÓN PRIMARIA',
-  'ESTADÍSTICA',
-  'FÍSICA',
-  'GENÉTICA Y BIOTECNOLOGÍA',
-  'GESTIÓN TRIBUTARIA',
-  'HISTORIA',
+  'EDUCACIÓN SECUNDARIA',
+  'EDUCACIÓN FÍSICA',
+  'QUÍMICA',
+  'INGENIERÍA QUÍMICA',
   'INGENIERÍA AGROINDUSTRIAL',
-  'INGENIERÍA BIOMÉDICA',
+  'MEDICINA VETERINARIA',
+  'ADMINISTRACIÓN - LIMA',
+  'ADMINISTRACIÓN - S.J.L',
+  'ADMINISTRACIÓN - HUARAL',
+  'ADMINISTRACIÓN DE TURISMO - LIMA',
+  'ADMINISTRACIÓN DE TURISMO - S.J.L',
+  'ADMINISTRACIÓN DE TURISMO - HUARAL',
+  'ADMINISTRACIÓN DE NEGOCIOS INTERNACIONALES - LIMA',
+  'ADMINISTRACIÓN DE NEGOCIOS INTERNACIONALES - S.J.L',
+  'ADMINISTRACIÓN DE NEGOCIOS INTERNACIONALES - HUARAL',
+  'CIENCIAS BIOLÓGICAS',
+  'GENÉTICA Y BIOTECNOLOGÍA',
+  'MICROBIOLOGÍA Y PARASITOLOGÍA',
+  'CONTABILIDAD - LIMA',
+  'CONTABILIDAD - S.J.L',
+  'GESTIÓN TRIBUTARIA - LIMA',
+  'GESTIÓN TRIBUTARIA - S.J.L',
+  'AUDITORÍA EMPRESARIAL Y DEL SECTOR PÚBLICO - LIMA',
+  'AUDITORÍA EMPRESARIAL Y DEL SECTOR PÚBLICO - S.J.L',
+  'PRESUPUESTO Y FINANZAS PÚBLICAS - LIMA',
+  'PRESUPUESTO Y FINANZAS PÚBLICAS - S.J.L',
+  'ECONOMÍA',
+  'ECONOMÍA PÚBLICA',
+  'ECONOMÍA INTERNACIONAL',
+  'FÍSICA',
+  'INGENIERÍA MECÁNICA DE FLUIDOS',
+  'MATEMÁTICA',
+  'ESTADÍSTICA',
+  'INVESTIGACIÓN OPERATIVA',
+  'COMPUTACIÓN CIENTÍFICA',
+  'HISTORIA',
+  'SOCIOLOGÍA',
+  'ANTROPOLOGÍA',
+  'ARQUEOLOGÍA',
+  'TRABAJO SOCIAL',
+  'GEOGRAFÍA',
+  'INGENIERÍA GEOLÓGICA',
+  'INGENIERÍA GEOGRÁFICA',
   'INGENIERÍA DE MINAS',
+  'INGENIERÍA METALÚRGICA',
+  'INGENIERÍA CIVIL',
+  'INGENIERÍA AMBIENTAL',
+  'INGENIERÍA INDUSTRIAL',
+  'INGENIERÍA TEXTIL Y CONFECCIONES ',
   'INGENIERÍA DE SEGURIDAD Y SALUD EN EL TRABAJO',
+  'PSICOLOGÍA',
+  'PSICOLOGÍA ORGANIZACIONAL Y DE LA GESTIÓN HUMANA',
+  'INGENIERÍA ELECTRÓNICA',
+  'INGENIERÍA ELÉCTRICA',
+  'INGENIERÍA DE TELECOMUNICACIONES',
+  'INGENIERÍA BIOMÉDICA',
   'INGENIERÍA DE SISTEMAS',
   'INGENIERÍA DE SOFTWARE',
-  'INGENIERÍA DE TELECOMUNICACIONES',
-  'INGENIERÍA ELECTRÓNICA',
-  'INGENIERÍA GEOLÓGICA',
-  'INGENIERÍA METALÚRGICA',
-  'INGENIERÍA TEXTIL Y CONFECCIONES',
-  'LINGUÍSTICA',
-  'MATEMÁTICA',
-  'MICROBIOLOGÍA Y PARASITOLOGÍA',
-  'QUÍMICA'
+  'CIENCIAS DE LA COMPUTACIÓN'
 ];
 
 const sortBy = [
@@ -79,8 +127,10 @@ const formSchema = z.object({
 type FormInput = TypeOf<typeof formSchema>;
 
 export const SearchForm = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const {
     register,
+    reset,
     formState: { errors },
     handleSubmit,
   } = useForm<FormInput>({
@@ -88,8 +138,22 @@ export const SearchForm = () => {
   });
 
   const onSubmitHandler: SubmitHandler<FormInput> = (values) => {
-    console.log("🚀 ~ file: searchForm.tsx:203 ~ SearchForm ~ values:", values)
+    const queryParamsObject = Object.fromEntries(searchParams);
+    setSearchParams({
+      ...queryParamsObject,
+      ...values,
+    });
   };
+
+  useEffect(() => {
+    reset({
+      code: searchParams.get('code') || '',
+      firstname: searchParams.get('firstname') || '',
+      lastname: searchParams.get('lastname') || '',
+      minimumscore: searchParams.get('minimumscore') || '0',
+      maximumscore: searchParams.get('maximumscore') || '2000',
+    });
+  }, []);
 
   return (
     <Box
@@ -128,7 +192,7 @@ export const SearchForm = () => {
           <TextField
             select
             label='ESCUELA PROFESIONAL'
-            defaultValue=''
+            defaultValue={''}
             error={!!errors['professionalschool']}
             helperText={errors['professionalschool'] ? errors['professionalschool'].message : ''}
             {...register('professionalschool')}

@@ -48,11 +48,14 @@ const handler = async (event) => {
         success: true,
         message: 'Applicants not found',
         data: [],
+        page: 0,
+        totalPages: 0,
+        count: 0,
       });
     }
     return handleResponse.generateResponse(200, {
       success: true,
-      count: data.applicants.length,
+      count: data.totalApplicantsCount,
       page: parseInt(page),
       totalpages: data.totalPages,
       data: data.applicants,
